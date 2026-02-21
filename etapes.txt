@@ -1,0 +1,30 @@
+kubectl apply -n boutique -f https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/main/release/kubernetes-manifests.yaml
+kubectl get pods -n boutique 
+
+
+kubectl apply -f - <<'EOF'
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: boutique-ingress
+  namespace: boutique
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned-cluster-issuer
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - boutique.entreprise.kaascloud.auroraiq.cloud
+    secretName: boutique-tls
+  rules:
+  - host: boutique.entreprise.kaascloud.auroraiq.cloud
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+EOF
